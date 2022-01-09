@@ -1,43 +1,49 @@
 ---
+
+- debug: var=rv_hashicorp_vault_access_hostname
+
+- name: Install Vault | Fail if Mandatory Vars are missing
+  fail:
+    msg: rv_hashicorp_vault_access_hostname is missing
+  when: rv_hashicorp_vault_access_hostname | length < 1
+
 - name: Install Vault | Creating Vault Data directories
-  become: true
-  become_user: root
   file:
     path: "{{ item  }}"
     state: directory
     mode: "0755"
-    owner: "{{  rv_vault_user  }}"
+    owner: "{{  rv_hashicorp_vault_os_user  }}"
   with_items:
-    - "{{rv_vault_data_directory}}/data"
-    - "{{rv_vault_data_directory}}/logs"
-    - "{{rv_vault_data_directory}}/config"
-    - "{{rv_vault_data_directory}}/config/tls"
+    - "{{  rv_hashicorp_vault_os_data_directory  }}/data"
+    - "{{  rv_hashicorp_vault_os_data_directory  }}/logs"
+    - "{{  rv_hashicorp_vault_os_data_directory  }}/config"
+    - "{{  rv_hashicorp_vault_os_data_directory  }}/config/tls"
 
 - name: Install Vault | Install TLS Certs
   include_role:
-    name: utils
+    name: sourceshift.utils
     tasks_from: tlscert
   vars:
-    rv_tls_key_path: "{{rv_vault_data_directory}}/config/tls/server.key"
-    rv_tls_cert_path: "{{rv_vault_data_directory}}/config/tls/server.crt"
-    rv_cert_owner: "{{  rv_vault_user  }}"
+    rv_tls_key_path: "{{  rv_hashicorp_vault_os_data_directory  }}/config/tls/server.key"
+    rv_tls_cert_path: "{{  rv_hashicorp_vault_os_data_directory  }}/config/tls/server.crt"
+    rv_cert_owner: "{{  rv_hashicorp_vault_os_user  }}"
     rv_tls_alt_names:
-      - "{{rv_vault_endpoint.host}}.{{rv_vault_endpoint.domain}}"
-    rv_tls_common_name: "{{rv_vault_endpoint.host}}.{{rv_vault_endpoint.domain}}"
+      - "{{  rv_hashicorp_vault_access_hostname  }}"
+    rv_tls_common_name: "{{  rv_hashicorp_vault_access_hostname  }}"
 
 - name: Install Vault | Set Vault Config Variable
   set_fact:
     rv_vault_config:
-      api_addr: "https://{{rv_vault_endpoint.host}}.{{rv_vault_endpoint.domain}}:8200"
-      cluster_addr: "https://{{rv_vault_endpoint.host}}.{{rv_vault_endpoint.domain}}:8201"
-      cluster_name: "{{rv_vault_endpoint.domain}}"
+      api_addr: "https://{{  rv_hashicorp_vault_access_hostname  }}:8200"
+      # cluster_addr: "https://{{  rv_hashicorp_vault_access_hostname  }}:8201"
+      # cluster_name: "{{rv_vault_endpoint.domain}}"
       default_lease_ttl: "768h"
-      disable_clustering: false
+      disable_clustering: true
       disable_mlock: false
       listener:
         tcp:
           address: "0.0.0.0:8200"
-          cluster_address: "0.0.0.0:8201"
+          # cluster_address: "0.0.0.0:8201"
           tls_cert_file: "/vault/config/tls/server.crt"
           tls_disable: false
           tls_key_file: "/vault/config/tls/server.key"
@@ -46,17 +52,16 @@
           tls_require_and_verify_client_cert: false
           tls_client_ca_file: "/vault/config/tls/ca.crt"
       storage:
-        raft:
-          node_id: "{{ rv_vault_endpoint.host }}"
+        file:
           path: "/vault/file"
       ui: true
 
-- name: Install Vault | Install Vault
-  become: yes
-  become_user: "{{  rv_vault_user  }}"
+- name: Install Vault | Install Vault on Docker
+  become: true
+  become_user: "{{  rv_hashicorp_vault_os_user  }}"
   docker_container:
     container_default_behavior: compatibility
-    name: vault_server
+    name: "{{  rv_hashicorp_vault_os_docker_name  }}"
     image: vault
     state: started
     restart_policy: unless-stopped
@@ -64,43 +69,12 @@
     restart: true
     ports:
       - "8200:8200"
-      - "8201:8201"
+      # - "8201:8201"
     capabilities:
       - IPC_LOCK
     volumes:
-      - "{{rv_vault_data_directory}}/data:/vault/file"
-      - "{{rv_vault_data_directory}}/logs:/vault/logs"
-      - "{{rv_vault_data_directory}}/config:/vault/config"
+      - "{{  rv_hashicorp_vault_os_data_directory  }}/data:/vault/file"
+      - "{{  rv_hashicorp_vault_os_data_directory  }}/logs:/vault/logs"
+      - "{{  rv_hashicorp_vault_os_data_directory  }}/config:/vault/config"
     env:
       VAULT_LOCAL_CONFIG: "{{ rv_vault_config | to_json }}"
-
-- name: Get my public IP
-  when:
-    - rv_godaddy_api_key is defined and rv_godaddy_api_key != None and rv_godaddy_api_key != ""
-    - rv_godaddy_api_secret is defined and rv_godaddy_api_secret != None and rv_godaddy_api_secret != ""
-  uri:
-    url: "http://ifconfig.me"
-    return_content: yes
-    headers:
-      "User-Agent": "curl"
-  register: rv_vault_tmp_public_ip
-
-- name: Install Vault | Create go daddy entry
-  when:
-    - rv_godaddy_api_key is defined and rv_godaddy_api_key != None and rv_godaddy_api_key != ""
-    - rv_godaddy_api_secret is defined and rv_godaddy_api_secret != None and rv_godaddy_api_secret != ""
-  uri:
-    url: "https://api.godaddy.com/v1/domains/{{rv_vault_endpoint.domain}}/records/A/{{rv_vault_endpoint.host}}"
-    method: PUT
-    headers:
-      Authorization: "sso-key {{rv_godaddy_api_key}}:{{rv_godaddy_api_secret}}"
-      Content-Type: "application/json"
-    body:
-      - {
-          "data": "{{  rv_vault_tmp_public_ip.content  }}",
-          "ttl": 600,
-          "type": "A",
-        }
-    return_content: no
-    status_code: 200
-    body_format: json

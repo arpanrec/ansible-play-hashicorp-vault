@@ -1,0 +1,64 @@
+---
+- name: Add host
+  hosts: localhost
+  become: false
+  gather_facts: false
+  vars:
+    # rv_hashicorp_vault_ansible_host:
+    # rv_hashicorp_vault_ansible_port:
+    # rv_hashicorp_vault_ansible_user:
+    # rv_hashicorp_vault_ansible_password:
+    # rv_hashicorp_vault_ansible_sudo_pass:
+    # rv_hashicorp_vault_ansible_connection:
+    # rv_hashicorp_vault_ansible_ssh_private_key_file:
+  tasks:
+    - name: Add vault host to inventory in order to avoid accidental deletion
+      add_host:
+        hostname: vault
+        ansible_python_interpreter: /usr/bin/python3
+        ansible_connection: "{{  rv_hashicorp_vault_ansible_connection  | default(omit) }}"
+        ansible_host: "{{  rv_hashicorp_vault_ansible_host  | default(omit) }}"
+        ansible_port: "{{  rv_hashicorp_vault_ansible_port  | default(omit) }}"
+        ansible_user: "{{  rv_hashicorp_vault_ansible_user  | default(omit) }}"
+        ansible_password: "{{  rv_hashicorp_vault_ansible_password  | default(omit) }}"
+        ansible_sudo_pass: "{{  rv_hashicorp_vault_ansible_sudo_pass  | default(omit) }}"
+        ansible_ssh_private_key_file: "{{  rv_hashicorp_vault_ansible_ssh_private_key_file  | default(omit) }}"
+
+- name: Master playbook
+  hosts: vault
+  gather_facts: true
+  become: true
+  vars:
+    rv_hashicorp_vault_access_hostname: localhost
+    rv_hashicorp_vault_os_user: vault
+    rv_hashicorp_vault_os_data_directory: /vault
+    rv_hashicorp_vault_godaddy_entry: false
+    # rv_hashicorp_vault_godaddy_api_key: "{{ lookup('env', 'GODADDY_API_KEY') }}"
+    # rv_hashicorp_vault_godaddy_api_secret: "{{ lookup('env', 'GODADDY_API_SECRET') }}"
+    # rv_hashicorp_vault_godaddy_domain: "sourceshift.org"
+    # rv_hashicorp_vault_godaddy_hostname: "vault"
+    #rv_tls_vault_uri: https://vault.sourceshift.org:8200/v1/pki/issue/web
+    rv_tls_vault_token: "{{ lookup('env', 'VAULT_TOKEN') }}"
+    rv_sshd_hardening_ssh_security_password_authentication: true
+    rv_sshd_hardening_ssh_security_permit_root_login: true
+    # Post-installation tasks
+    rv_hashicorp_vault_post_install_action_api_addr: https://localhost:8200
+    rv_hashicorp_vault_post_install_action_initialize: false
+    rv_hashicorp_vault_post_install_action_initialize_share: 5
+    rv_hashicorp_vault_post_install_action_initialize_threshold: 3
+    rv_hashicorp_vault_post_install_action_initialize_secrets_directory: "{{  rv_hashicorp_vault_os_data_directory  }}/init_secrets"
+    rv_hashicorp_vault_post_install_action_setup_auto_unseal_cron: false
+    rv_hashicorp_vault_post_install_action_setup_auto_unseal_cron_dir: "{{ rv_hashicorp_vault_os_data_directory }}/unseal_corn"
+    rv_hashicorp_vault_post_install_action_setup_unseal_keys: []
+    rv_hashicorp_vault_os_docker_name: vault_server
+    rv_hashicorp_vault_os_cron_job_name: "Unseal Vault"
+  tasks:
+    # tasks file for ansible-role-hashicorp-vault
+    - name: Prerequisites
+      include_tasks: tasks/prerequisite.yml
+
+    - name: Install
+      include_tasks: tasks/install.yml
+
+    - name: Post Install
+      include_tasks: tasks/post-install.yml

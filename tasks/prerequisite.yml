@@ -1,31 +1,34 @@
 ---
-- name: Upgrade and Install basic services
+- name: Install Vault | Requirements | Upgrade and Install basic services
   include_role:
-    name: linux-patching
-  vars:
-    rv_linux_patching_upgrade_existing_packages: true
+    name: sourceshift.linux_patching
 
-- name: Set Basic SSHD Configuration
+- name: Install Vault | Requirements | Set Basic SSHD Configuration
   include_role:
-    name: ssh-hardening
+    name: sourceshift.ssh_hardening
 
-- name: Create User for Vault
+- name: Install Vault | Requirements | Create User for Vault
   include_role:
-    name: user-add
+    name: sourceshift.user_add
   vars:
-    rv_user_add_username: "{{ rv_vault_user }}"
+    rv_user_add_username: "{{ rv_hashicorp_vault_os_user }}"
     rv_user_add_user_nopasswd_commands: ["ALL"]
 
-- name: Install Vault | Install Docker
+- name: Install Vault | Requirements | Install Docker
   include_role:
-    name: docker
+    name: geerlingguy.docker
   vars:
-    docker_users: ["{{ rv_vault_user }}"]
+    docker_users: ["{{ rv_hashicorp_vault_os_user }}"]
     docker_package_state: present
 
-- name: Install Vault | Install docker python package
-  become: yes
-  become_user: "{{  rv_vault_user  }}"
+- name: Install Vault | Requirements | Workspace
+  include_role:
+    name: sourceshift.server_workspace
+
+- name: Install Vault | Requirements | Install docker python package
+  become: true
+  become_user: "{{  rv_hashicorp_vault_os_user  }}"
   pip:
     name: docker
     extra_args: --user
+    executable: pip3

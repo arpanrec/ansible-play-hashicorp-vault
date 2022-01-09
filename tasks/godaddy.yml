@@ -1,0 +1,34 @@
+- name: Vault Godaddy Entry | Fail if Mandatory Vars are missing
+  fail:
+    msg: "Mandatory Vars are missing"
+  when: item is not defined or item is None or item is ""
+  with_items:
+    - "{{  rv_hashicorp_vault_godaddy_api_key  }}"
+    - "{{  rv_hashicorp_vault_godaddy_api_secret  }}"
+    - "{{  rv_hashicorp_vault_godaddy_domain  }}"
+    - "{{  rv_hashicorp_vault_godaddy_hostname  }}"
+
+- name: Vault Godaddy Entry | Get my public IP
+  uri:
+    url: "http://ifconfig.me"
+    return_content: yes
+    headers:
+      "User-Agent": "curl"
+  register: rv_vault_tmp_public_ip
+
+- name: Vault Godaddy Entry | Create go daddy entry
+  uri:
+    url: "https://api.godaddy.com/v1/domains/{{  rv_hashicorp_vault_godaddy_domain  }}/records/A/{{  rv_hashicorp_vault_godaddy_hostname  }}"
+    method: PUT
+    headers:
+      Authorization: "sso-key {{rv_hashicorp_vault_godaddy_api_key}}:{{rv_hashicorp_vault_godaddy_api_secret}}"
+      Content-Type: "application/json"
+    body:
+      - {
+          "data": "{{  rv_vault_tmp_public_ip.content  }}",
+          "ttl": 600,
+          "type": "A",
+        }
+    return_content: no
+    status_code: 200
+    body_format: json
