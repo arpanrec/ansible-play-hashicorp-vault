@@ -100,7 +100,7 @@ Setup Basic cron based auto-unseal
 
 ```yaml
 - name: rv_hashicorp_vault_post_install_action_setup_auto_unseal_cron
-  description: Setup cron job to run autounseal.
+  description: Setup cron job to run auto-unseal.
   required: no
   default: no
   type: boolean
@@ -149,7 +149,7 @@ Dependencies
 How to Run
 ----------
 
-Clone sourcecode and go to the source directory.
+Clone source code and go to the source directory.
 
 ```bash
 git clone --depth=1 https://github.com/sourceshift/ansible-play-hashicorp-vault.git
