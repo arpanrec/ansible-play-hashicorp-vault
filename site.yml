@@ -16,7 +16,7 @@
       add_host:
         hostname: vault
         ansible_python_interpreter: /usr/bin/python3
-        ansible_connection: "{{  rv_hashicorp_vault_ansible_connection  | default(omit) }}"
+        ansible_connection: "{{  rv_hashicorp_vault_ansible_connection  | default('ssh') }}"
         ansible_host: "{{  rv_hashicorp_vault_ansible_host  | default(omit) }}"
         ansible_port: "{{  rv_hashicorp_vault_ansible_port  | default(omit) }}"
         ansible_user: "{{  rv_hashicorp_vault_ansible_user  | default(omit) }}"
