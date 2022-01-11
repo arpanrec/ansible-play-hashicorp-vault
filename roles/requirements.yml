@@ -7,7 +7,7 @@
   scm: git
   name: geerlingguy.docker
 
-- src: https://github.com/sourceshift/ansible-role-utils.git
+- src: git@github.com:sourceshift/ansible-role-utils.git
   scm: git
   name: sourceshift.utils
 

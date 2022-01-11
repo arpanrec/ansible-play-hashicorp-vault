@@ -11,23 +11,37 @@
     # rv_hashicorp_vault_ansible_sudo_pass:
     # rv_hashicorp_vault_ansible_connection:
     # rv_hashicorp_vault_ansible_ssh_private_key_file:
+    # ss_secret_vault_endpoint:
+    # ss_vault_secret_vault_token:
   tasks:
-    - name: Add vault host to inventory in order to avoid accidental deletion
-      add_host:
-        hostname: vault
-        ansible_python_interpreter: /usr/bin/python3
-        ansible_connection: "{{  rv_hashicorp_vault_ansible_connection  | default('ssh') }}"
-        ansible_host: "{{  rv_hashicorp_vault_ansible_host  | default(omit) }}"
-        ansible_port: "{{  rv_hashicorp_vault_ansible_port  | default(omit) }}"
-        ansible_user: "{{  rv_hashicorp_vault_ansible_user  | default(omit) }}"
-        ansible_password: "{{  rv_hashicorp_vault_ansible_password  | default(omit) }}"
-        ansible_sudo_pass: "{{  rv_hashicorp_vault_ansible_sudo_pass  | default(omit) }}"
-        ansible_ssh_private_key_file: "{{  rv_hashicorp_vault_ansible_ssh_private_key_file  | default(omit) }}"
+    - name: Check for vault details
+      include_role:
+        name: sourceshift.utils
+        tasks_from: set_secret_vault_env.yml
+
+    - name: Add vault host
+      include_role:
+        name: sourceshift.utils
+        tasks_from: add_host_from_vault.yml
+      vars:
+        rv_common_add_host_hostname: vault
 
 - name: Master playbook
   hosts: vault
   gather_facts: true
   become: true
+  roles:
+    - sourceshift.linux_patching
+    - sourceshift.ssh_hardening
+    - role: sourceshift.user_add
+      vars:
+        rv_user_add_username: "{{ rv_hashicorp_vault_os_user }}"
+        rv_user_add_user_nopasswd_commands: ["ALL"]
+    - role: geerlingguy.docker
+      vars:
+        docker_users: ["{{ rv_hashicorp_vault_os_user }}"]
+        docker_package_state: present
+    - sourceshift.server_workspace
   vars:
     rv_hashicorp_vault_access_hostname: localhost
     rv_hashicorp_vault_os_user: vault
