@@ -4,27 +4,22 @@
   become: false
   gather_facts: false
   vars:
-    # rv_hashicorp_vault_ansible_host:
-    # rv_hashicorp_vault_ansible_port:
-    # rv_hashicorp_vault_ansible_user:
-    # rv_hashicorp_vault_ansible_password:
-    # rv_hashicorp_vault_ansible_sudo_pass:
-    # rv_hashicorp_vault_ansible_connection:
-    # rv_hashicorp_vault_ansible_ssh_private_key_file:
-    # ss_secret_vault_endpoint:
-    # ss_vault_secret_vault_token:
   tasks:
-    - name: Check for vault details
-      include_role:
-        name: sourceshift.utils
-        tasks_from: set_secret_vault_env.yml
+    - name: Get Host Details From Vault
+      tags:
+        - get_host_details_from_vault
+      block:
+        - name: Check for vault details
+          include_role:
+            name: sourceshift.utils
+            tasks_from: set_secret_vault_env.yml
 
-    - name: Add vault host
-      include_role:
-        name: sourceshift.utils
-        tasks_from: add_host_from_vault.yml
-      vars:
-        rv_common_add_host_hostname: vault
+        - name: Add vault host
+          include_role:
+            name: sourceshift.utils
+            tasks_from: add_host_from_vault.yml
+          vars:
+            rv_common_add_host_hostname: vault
 
 - name: Master playbook
   hosts: vault

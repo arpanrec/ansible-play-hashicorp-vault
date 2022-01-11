@@ -6,18 +6,6 @@ An ansible Playbook to install [HashiCorp Vault](https://www.vaultproject.io) wi
 Playbook Variables
 ------------------
 
-Add ansible host information to your playbook.
-
-```yaml
-rv_hashicorp_vault_ansible_host:
-rv_hashicorp_vault_ansible_port:
-rv_hashicorp_vault_ansible_user:
-rv_hashicorp_vault_ansible_password:
-rv_hashicorp_vault_ansible_sudo_pass:
-rv_hashicorp_vault_ansible_connection:
-rv_hashicorp_vault_ansible_ssh_private_key_file:
-```
-
 Playbook Variables
 
 ```yaml
