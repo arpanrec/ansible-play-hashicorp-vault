@@ -1,9 +1,9 @@
 ---
-- src: https://github.com/sourceshift/ansible-role-linux-patching.git
+- src: git@github.com:sourceshift/ansible-role-linux-patching.git
   scm: git
   name: sourceshift.linux_patching
 
-- src: https://github.com/geerlingguy/ansible-role-docker.git
+- src: git@github.com:sourceshift/ansible-role-docker.git
   scm: git
   name: geerlingguy.docker
 
@@ -11,14 +11,14 @@
   scm: git
   name: sourceshift.utils
 
-- src: https://github.com/sourceshift/ansible-role-ssh-hardening.git
+- src: git@github.com:sourceshift/ansible-role-ssh-hardening.git
   scm: git
   name: sourceshift.ssh_hardening
 
-- src: https://github.com/sourceshift/ansible-role-user-add.git
+- src: git@github.com:sourceshift/ansible-role-user-add.git
   scm: git
   name: sourceshift.user_add
 
-- src: https://github.com/sourceshift/ansible-role-server-workspace.git
+- src: git@github.com:sourceshift/ansible-role-server-workspace.git
   scm: git
   name: sourceshift.server_workspace
