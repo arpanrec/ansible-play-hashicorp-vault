@@ -7,16 +7,16 @@
   tasks:
     - name: Get Host Details From Vault
       tags:
-        - get_host_details_from_vault
+        -  get_host_details_from_vault
       block:
         - name: Check for vault details
           include_role:
-            name: sourceshift.utils
+            name: arpanrec.utils
             tasks_from: set_secret_vault_env.yml
 
         - name: Add vault host
           include_role:
-            name: sourceshift.utils
+            name: arpanrec.utils
             tasks_from: add_host_from_vault.yml
           vars:
             rv_common_add_host_hostname: vault
@@ -26,9 +26,9 @@
   gather_facts: true
   become: true
   roles:
-    - sourceshift.linux_patching
-    - sourceshift.ssh_hardening
-    - role: sourceshift.user_add
+    - arpanrec.linux_patching
+    - arpanrec.ssh_hardening
+    - role: arpanrec.user_add
       vars:
         rv_user_add_username: "{{ rv_hashicorp_vault_os_user }}"
         rv_user_add_user_nopasswd_commands: ["ALL"]
@@ -36,7 +36,7 @@
       vars:
         docker_users: ["{{ rv_hashicorp_vault_os_user }}"]
         docker_package_state: present
-    - sourceshift.server_workspace
+    - arpanrec.server_workspace
   vars:
     rv_hashicorp_vault_access_hostname: localhost
     rv_hashicorp_vault_os_user: vault
@@ -44,9 +44,9 @@
     rv_hashicorp_vault_godaddy_entry: false
     # rv_hashicorp_vault_godaddy_api_key: "{{ lookup('env', 'GODADDY_API_KEY') }}"
     # rv_hashicorp_vault_godaddy_api_secret: "{{ lookup('env', 'GODADDY_API_SECRET') }}"
-    # rv_hashicorp_vault_godaddy_domain: "sourceshift.org"
+    # rv_hashicorp_vault_godaddy_domain: "arpanrec.org"
     # rv_hashicorp_vault_godaddy_hostname: "vault"
-    #rv_tls_vault_uri: https://vault.sourceshift.org:8200/v1/pki/issue/web
+    #rv_tls_vault_uri: https://vault.arpanrec.org:8200/v1/pki/issue/web
     rv_tls_vault_token: "{{ lookup('env', 'VAULT_TOKEN') }}"
     rv_sshd_hardening_ssh_security_password_authentication: true
     rv_sshd_hardening_ssh_security_permit_root_login: true

@@ -109,29 +109,29 @@ Dependencies
 
 ```yaml
 ---
-- src: https://github.com/sourceshift/ansible-role-linux-patching.git
+- src: https://github.com/arpanrec/ansible-role-linux-patching.git
   scm: git
-  name: sourceshift.linux_patching
+  name: arpanrec.linux_patching
 
 - src: https://github.com/geerlingguy/ansible-role-docker.git
   scm: git
   name: geerlingguy.docker
 
-- src: https://github.com/sourceshift/ansible-role-utils.git
+- src: https://github.com/arpanrec/ansible-role-utils.git
   scm: git
-  name: sourceshift.utils
+  name: arpanrec.utils
 
-- src: https://github.com/sourceshift/ansible-role-ssh-hardening.git
+- src: https://github.com/arpanrec/ansible-role-ssh-hardening.git
   scm: git
-  name: sourceshift.ssh_hardening
+  name: arpanrec.ssh_hardening
 
-- src: https://github.com/sourceshift/ansible-role-user-add.git
+- src: https://github.com/arpanrec/ansible-role-user-add.git
   scm: git
-  name: sourceshift.user_add
+  name: arpanrec.user_add
 
-- src: https://github.com/sourceshift/ansible-role-server-workspace.git
+- src: https://github.com/arpanrec/ansible-role-server-workspace.git
   scm: git
-  name: sourceshift.server_workspace
+  name: arpanrec.server_workspace
 ```
 
 How to Run
@@ -140,7 +140,7 @@ How to Run
 Clone source code and go to the source directory.
 
 ```bash
-git clone --depth=1 https://github.com/sourceshift/ansible-play-hashicorp-vault.git
+git clone --depth=1 https://github.com/arpanrec/ansible-play-hashicorp-vault.git
 cd ansible-play-hashicorp-vault
 ```
 

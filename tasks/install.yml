@@ -21,7 +21,7 @@
 
 - name: Install Vault | Install TLS Certs
   include_role:
-    name: sourceshift.utils
+    name: arpanrec.utils
     tasks_from: tlscert
   vars:
     rv_tls_key_path: "{{  rv_hashicorp_vault_os_data_directory  }}/config/tls/server.key"
