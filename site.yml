@@ -7,7 +7,8 @@
   tasks:
     - name: Get Host Details From Vault
       tags:
-        -  get_host_details_from_vault
+        - get_host_details_from_vault
+        - never
       block:
         - name: Check for vault details
           include_role:
@@ -36,7 +37,8 @@
       vars:
         docker_users: ["{{ rv_hashicorp_vault_os_user }}"]
         docker_package_state: present
-    - arpanrec.server_workspace
+        docker_install_compose: false
+    - role: arpanrec.server_workspace
   vars:
     rv_hashicorp_vault_access_hostname: localhost
     rv_hashicorp_vault_os_user: vault

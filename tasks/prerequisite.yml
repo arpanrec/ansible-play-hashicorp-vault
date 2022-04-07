@@ -3,6 +3,9 @@
   become: true
   become_user: "{{  rv_hashicorp_vault_os_user  }}"
   pip:
-    name: docker
+    name: "{{  item  }}"
     extra_args: --user
     executable: pip3
+  with_items:
+    - docker
+    - cryptography
